@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>전지의 구조</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&family=Noto+Serif+KR:wght@400;600;700&family=STIX+Two+Text:ital@1&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root{
+  --mint:#5dc2b0; --mint-deep:#23907f; --mint-soft:#e3f5f1;
+  --yellow:#f4c33b; --salmon:#e9966b; --num:#e8843a;
+  --violet:#8b6fc0; --violet-soft:#efe9f8;   /* 이차 전지 묶음 표시(교과서 보라색 원) */
+  --ink:#231f20; --muted:#646b6c; --line:#d9dddc;
+  --paper:#fff; --panel:#f5f8f7; --stage:#fcfdfd; --gray-tag:#98a2a2;
+  --open:900ms;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ink:#eef2f1; --muted:#a7b0b0; --line:#3a4443;
+    --paper:#141919; --panel:#1c2322; --stage:#182020;
+    --mint-soft:#1d3632; --violet-soft:#2b2540; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#eef2f1; --muted:#a7b0b0; --line:#3a4443;
+  --paper:#141919; --panel:#1c2322; --stage:#182020;
+  --mint-soft:#1d3632; --violet-soft:#2b2540; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  font-family:'Noto Sans KR',system-ui,sans-serif; color:var(--ink); background:var(--paper);
+  padding:env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0);
+  -webkit-tap-highlight-color:transparent;
+}
+button{font:inherit;color:inherit}
+button:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
+.ch sub,.ch sup{font-size:.7em}
+
+.app{display:flex;flex-direction:column;height:100dvh;min-height:560px}
+
+/* 상단 */
+.top{display:flex;align-items:center;gap:18px;padding:14px 20px 12px}
+.badges{display:flex;gap:6px}
+.bd{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:1rem;color:#fff}
+.bd1{background:var(--mint)}
+.bd2{background:var(--yellow);color:#231f20}
+.prog{flex:1;display:flex;align-items:center}
+.bar{position:relative;flex:1;height:8px;border-radius:99px;background:var(--line)}
+.fill{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:var(--mint);width:0;transition:width .45s}
+.knob{position:absolute;top:50%;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;background:var(--mint-deep);border:3px solid var(--paper);left:0;transition:left .45s;box-shadow:0 0 0 1px var(--mint-deep)}
+
+/* 본문 */
+.main{flex:1;min-height:0;display:grid;grid-template-columns:300px 1fr;gap:16px;padding:0 16px 16px}
+.side{background:var(--panel);border-radius:20px;padding:18px 16px;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.blk{flex:none}
+.blist li.reach{cursor:pointer}
+.blist li.view{background:var(--paper);box-shadow:inset 0 0 0 2px var(--mint)}
+.read{flex:1;min-height:0;overflow:auto;margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)}
+.rh{margin:0 0 8px;font-size:.95rem;font-weight:800}
+.rh small{margin-left:6px;font-weight:500;color:var(--muted);font-size:.9rem}
+.rbody p{margin:0 0 10px;font-family:'Noto Serif KR',serif;font-weight:400;font-size:.95rem;line-height:1.8;word-break:keep-all}
+.rbody b{font-family:'Noto Sans KR',sans-serif;font-weight:800}
+.rbody .kw{color:var(--mint-deep)}
+.rbody .kw.v{color:var(--violet)}
+.rbody .empty{font-family:'Noto Sans KR',sans-serif;color:var(--muted)}
+.mk{border-radius:4px;transition:background .4s,box-shadow .4s}
+.mk.hit{background:var(--mint-soft);box-shadow:0 2px 0 var(--mint)}
+.mk.pop{animation:mkpop 1.1s}
+@keyframes mkpop{30%{background:rgba(244,195,59,.45)}}
+.sh{margin:0 0 12px;font-size:1.05rem;font-weight:800}
+.grp{display:inline-block;margin:10px 0 6px;padding:3px 12px;border-radius:99px;font-size:.85rem;font-weight:700;color:#fff}
+.grp.g1{background:var(--mint)}
+.grp.g2{background:var(--violet)}
+.blist{list-style:none;margin:0;padding:0}
+.blist li{display:flex;align-items:center;gap:10px;padding:9px 8px;border-radius:12px;font-weight:500;min-height:44px}
+.blist li.cur{background:var(--paper);box-shadow:inset 0 0 0 2px var(--line)}
+.ck{flex:none;width:22px;height:22px;border-radius:6px;border:2px solid var(--line);display:grid;place-items:center;background:var(--paper);transition:background .3s,border-color .3s}
+.blist li.done .ck{background:var(--mint);border-color:var(--mint)}
+.blist li.done .ck::after{content:"";width:6px;height:11px;border:solid #fff;border-width:0 3px 3px 0;transform:translateY(-1px) rotate(45deg)}
+.sidenote{margin:18px 0 0;padding-top:14px;border-top:1px dashed var(--line);font-size:.85rem;color:var(--muted);line-height:1.55}
+
+.content{display:flex;flex-direction:column;gap:12px;min-width:0;min-height:0}
+.head h1{margin:0;font-size:1.7rem;font-weight:800;letter-spacing:-.01em}
+.goal{margin:6px 0 0;display:flex;gap:10px;align-items:baseline;line-height:1.55}
+.gl{flex:none;padding:2px 12px;border-radius:99px;background:var(--mint-soft);color:var(--mint-deep);font-weight:700;font-size:.9rem}
+.gt{font-family:'Noto Serif KR',serif;font-weight:600;font-size:1.05rem}
+
+.stage{position:relative;flex:1;min-height:300px;background:var(--stage);border:1px solid var(--line);border-radius:22px;overflow:hidden}
+#svg{position:absolute;inset:0;width:100%;height:100%;touch-action:none;user-select:none;-webkit-user-select:none;font-family:'Noto Sans KR',sans-serif}
+.chips{position:absolute;left:14px;top:14px;display:flex;gap:6px;pointer-events:none}
+.chip{padding:6px 14px;border-radius:99px;font-weight:700;font-size:.95rem}
+.chip.g1{background:var(--mint);color:#fff}
+.chip.g2{background:var(--violet);color:#fff}
+.chip.nm{background:var(--yellow);color:#231f20}
+.tr{position:absolute;right:14px;top:14px;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;max-width:60%}
+.sbtn{min-height:48px;padding:0 18px;border-radius:99px;border:1px solid var(--line);background:var(--paper);font-weight:700;font-size:.95rem;cursor:pointer}
+.sbtn.on{background:var(--mint-soft);border-color:var(--mint);color:var(--mint-deep)}
+.bl{position:absolute;left:14px;bottom:14px}
+.cnt{position:absolute;right:14px;bottom:14px;padding:8px 16px;border-radius:99px;background:var(--paper);border:1px solid var(--line);font-weight:700;display:none}
+.cnt b{font-family:'Share Tech Mono',monospace;font-size:1.1rem;color:var(--mint-deep)}
+.toast{position:absolute;left:50%;top:16px;transform:translate(-50%,-140%);padding:10px 20px;border-radius:99px;background:var(--ink);color:var(--paper);font-weight:700;opacity:0;transition:transform .35s,opacity .35s;pointer-events:none;white-space:nowrap;max-width:90%;overflow:hidden;text-overflow:ellipsis;z-index:5}
+.toast.show{transform:translate(-50%,0);opacity:1}
+
+.sheet{position:absolute;left:12px;right:12px;bottom:0;max-height:62%;overflow:auto;background:var(--paper);border:1px solid var(--line);border-bottom:0;border-radius:22px 22px 0 0;padding:18px 24px 22px;transform:translateY(110%);transition:transform .45s;box-shadow:0 -8px 30px rgba(0,0,0,.12);z-index:4}
+.sheet.open{transform:translateY(0)}
+.shd{display:flex;align-items:center;gap:10px}
+.shd .tag{background:var(--mint)}
+.shd .sp{flex:1}
+.q{margin:14px 0 0;padding:0;list-style:none;counter-reset:q}
+.q li{counter-increment:q;display:flex;gap:10px;font-family:'Noto Serif KR',serif;font-weight:600;font-size:1.15rem;line-height:1.6}
+.q li::before{content:counter(q);color:var(--num);font-family:'Noto Sans KR',sans-serif;font-weight:800}
+.note{margin:14px 0 0;color:var(--muted);font-size:.95rem}
+
+/* 안내 패널 */
+.panel{background:var(--panel);border-radius:20px;padding:14px 20px 16px}
+.prow{display:flex;align-items:center;gap:10px}
+.tag{padding:4px 14px;border-radius:99px;color:#fff;font-weight:700;font-size:.9rem;background:var(--salmon)}
+.tag.prep{background:var(--gray-tag)}
+.tag.res{background:var(--mint)}
+.pc{font-family:'Share Tech Mono',monospace;color:var(--muted);font-size:1.05rem}
+.sp{flex:1}
+.next{min-height:48px;padding:0 24px;border-radius:99px;border:0;background:var(--line);color:var(--muted);font-weight:800;font-size:1rem;cursor:pointer;transition:background .3s,color .3s}
+.next.ready{background:var(--mint);color:#fff}
+.next.blink{animation:blink .45s 2}
+@keyframes blink{50%{box-shadow:0 0 0 8px rgba(93,194,176,.35);transform:scale(1.04)}}
+.stxt{margin:10px 0 0;display:flex;gap:12px;align-items:baseline;font-family:'Noto Serif KR',serif;font-weight:600;font-size:1.4rem;line-height:1.5}
+.sn{font-family:'Noto Sans KR',sans-serif;font-weight:800;color:var(--num);font-size:1.5rem}
+.hint{margin:4px 0 0 32px;color:var(--muted);font-size:.95rem}
+
+/* 확인 문제 */
+.quiz{position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:20px;background:rgba(20,25,25,.45);opacity:0;pointer-events:none;transition:opacity .3s}
+.quiz.open{opacity:1;pointer-events:auto}
+.qcard{width:min(580px,100%);background:var(--paper);border-radius:22px;padding:22px 26px 20px;box-shadow:0 20px 50px rgba(0,0,0,.25);transform:translateY(16px);transition:transform .3s}
+.quiz.open .qcard{transform:none}
+.qhead{display:flex;align-items:center;gap:10px}
+.qsub{color:var(--muted);font-weight:700}
+.qtext{margin:16px 0 20px;font-family:'Noto Serif KR',serif;font-weight:600;font-size:1.3rem;line-height:1.65;word-break:keep-all}
+.ox{display:flex;gap:20px;justify-content:center}
+.oxb{width:104px;height:104px;border-radius:50%;border:3px solid var(--line);background:var(--paper);font-size:3rem;font-weight:800;cursor:pointer;transition:background .25s,border-color .25s,opacity .25s}
+.oxb[data-a="O"]{color:var(--mint-deep)}
+.oxb[data-a="X"]{color:#d9624b}
+.oxb.wrong{border-color:#d9624b;animation:shake .4s}
+.oxb.right{background:var(--mint-soft);border-color:var(--mint)}
+.oxb:disabled{cursor:default;opacity:.35}
+.oxb.right:disabled{opacity:1}
+@keyframes shake{25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+.qfb{min-height:1.6em;margin:16px 0 0;text-align:center;font-weight:700;line-height:1.6;word-break:keep-all}
+.qfb.ok{color:var(--mint-deep)}
+.qfb.no{color:#c4553f}
+.qfoot{display:flex;align-items:center;gap:10px;margin-top:14px}
+.qs{border-radius:3px;transition:background .4s,box-shadow .4s}
+.qs.show{background:rgba(244,195,59,.3);box-shadow:0 2px 0 var(--yellow)}
+
+/* SVG */
+.batt{display:none}
+.batt.on{display:inline}
+.batt .sec{opacity:0;transition:opacity var(--open)}
+.batt.open .sec{opacity:1}
+.batt:not(.open) .sec{pointer-events:none}
+.batt .ext{transition:opacity var(--open),transform var(--open)}
+.batt.open .ext{opacity:0;transform:translate(80px,-12px);pointer-events:none}
+.batt.open .part{cursor:pointer}
+.hitbox{fill:transparent;stroke:none!important}
+.part.flash{animation:flash 1s}
+@keyframes flash{35%{stroke:#f4c33b;stroke-width:5px}}
+.lblbox{fill:var(--paper);stroke:var(--line);stroke-width:1.5}
+.lbl text{fill:var(--ink);font-size:19px;font-weight:600}
+.lbl .leader{stroke:var(--ink);stroke-width:1.6;opacity:.75}
+.lbl .dot{fill:#fff;stroke:#231f20;stroke-width:2}
+.lbl{animation:lblIn .35s}
+@keyframes lblIn{from{opacity:0}}
+.guide{stroke:var(--ink);stroke-width:3;stroke-dasharray:10 8;opacity:.55;fill:none}
+.slit{stroke:#f4c33b;stroke-width:5;stroke-linecap:round}
+.slitShadow{stroke:#231f20;stroke-width:9;stroke-linecap:round;opacity:.55}
+#knife{cursor:default}
+#knife[data-drag]{cursor:grab}
+#knife[data-drag]:active{cursor:grabbing}
+.pulse{fill:none;stroke:var(--mint);stroke-width:3;animation:pulse 1.6s infinite}
+@keyframes pulse{0%{r:26;opacity:.9}100%{r:52;opacity:0}}
+.caption{fill:var(--muted);font-size:17px}
+.ovt{display:none;fill:var(--ink);font-size:40px;font-weight:800}
+#ovGrid{display:none;stroke:var(--line);stroke-width:2}
+#svg.ov .batt{display:inline;transition:transform .6s}
+#svg.ov .ovt,#svg.ov #ovGrid{display:inline}
+#svg.ov #b-dry{transform:translate(0px,0px) scale(.5)}
+#svg.ov #b-coin{transform:translate(500px,0px) scale(.5)}
+#svg.ov #b-lead{transform:translate(0px,300px) scale(.5)}
+#svg.ov #b-li{transform:translate(500px,300px) scale(.5)}
+
+@media (max-width:900px),(orientation:portrait){
+  .app{height:auto;min-height:100dvh}
+  .main{grid-template-columns:1fr}
+  .side{padding:12px 14px}
+  .blk{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px}
+  .read{max-height:34vh}
+  .sh{margin:0 6px 0 0}
+  .grp{margin:0}
+  .blist{display:flex;flex-wrap:wrap;gap:4px}
+  .sidenote{display:none}
+  .stage{flex:none;aspect-ratio:5/3.4;min-height:0}
+  .head h1{font-size:1.4rem}
+  .stxt{font-size:1.2rem}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="badges"><span class="bd bd1">탐구</span><span class="bd bd2">실험</span></div>
+    <div class="prog"><div class="bar"><div class="fill" id="pfill"></div><div class="knob" id="pknob"></div></div></div>
+  </header>
+
+  <div class="main">
+    <aside class="side">
+      <div class="blk">
+        <h2 class="sh">살펴볼 전지</h2>
+        <span class="grp g1">일차 전지</span>
+        <ul class="blist">
+          <li data-b="dry" tabindex="0"><span class="ck"></span>건전지</li>
+          <li data-b="coin" tabindex="0"><span class="ck"></span>단추·동전 전지</li>
+        </ul>
+        <span class="grp g2">이차 전지</span>
+        <ul class="blist">
+          <li data-b="lead" tabindex="0"><span class="ck"></span>납축전지</li>
+          <li data-b="li" tabindex="0"><span class="ck"></span>리튬 이온 전지</li>
+        </ul>
+      </div>
+      <div class="read" id="read"><h3 class="rh" id="rh">본문</h3><div class="rbody" id="rbody"></div></div>
+    </aside>
+
+    <section class="content">
+      <div class="head">
+        <h1>전지의 구조</h1>
+        <p class="goal"><span class="gl">목표</span><span class="gt">여러 가지 실용 전지의 구조를 살펴보고, 일차 전지와 이차 전지의 구조적 공통점과 차이점을 설명할 수 있다.</span></p>
+      </div>
+
+      <div class="stage" id="stage">
+<svg id="svg" viewBox="0 0 1000 600" xmlns="http://www.w3.org/2000/svg" aria-label="전지 단면 실험대">
+  <defs>
+    <linearGradient id="cylGrad" x1="0" x2="1"><stop offset="0" stop-color="#253a48"/><stop offset=".35" stop-color="#4f7287"/><stop offset="1" stop-color="#1f3240"/></linearGradient>
+    <linearGradient id="bandGrad" x1="0" x2="1"><stop offset="0" stop-color="#c7952f"/><stop offset=".35" stop-color="#f3d68a"/><stop offset="1" stop-color="#b8862a"/></linearGradient>
+    <linearGradient id="rodGrad" x1="0" x2="1"><stop offset="0" stop-color="#3c4146"/><stop offset=".5" stop-color="#7a8187"/><stop offset="1" stop-color="#3a3f44"/></linearGradient>
+    <linearGradient id="zincGrad" x1="0" x2="1"><stop offset="0" stop-color="#99a1a8"/><stop offset=".5" stop-color="#d4d9dd"/><stop offset="1" stop-color="#99a1a8"/></linearGradient>
+    <linearGradient id="brassGrad" x1="0" x2="1"><stop offset="0" stop-color="#a88532"/><stop offset=".5" stop-color="#e3c46e"/><stop offset="1" stop-color="#a88532"/></linearGradient>
+    <pattern id="paste" width="16" height="16" patternUnits="userSpaceOnUse">
+      <rect width="16" height="16" fill="#35322f"/><circle cx="4" cy="5" r="1.6" fill="#5b5651"/><circle cx="12" cy="11" r="1.3" fill="#6a6660"/><circle cx="10" cy="3" r="1" fill="#4c4844"/><circle cx="3" cy="13" r="1" fill="#57524d"/>
+    </pattern>
+    <radialGradient id="coinTop" cx=".42" cy=".38" r=".7"><stop offset="0" stop-color="#f4f6f7"/><stop offset="1" stop-color="#b3bac0"/></radialGradient>
+    <linearGradient id="coinSide" x1="0" x2="1"><stop offset="0" stop-color="#8b939a"/><stop offset=".45" stop-color="#e2e6e9"/><stop offset="1" stop-color="#8b939a"/></linearGradient>
+    <pattern id="znPaste" width="14" height="14" patternUnits="userSpaceOnUse">
+      <rect width="14" height="14" fill="#e6b84a"/><circle cx="4" cy="4" r="1.5" fill="#f3d27c"/><circle cx="11" cy="10" r="1.4" fill="#cf9f35"/>
+    </pattern>
+    <pattern id="agPaste" width="14" height="14" patternUnits="userSpaceOnUse">
+      <rect width="14" height="14" fill="#557aa3"/><circle cx="5" cy="5" r="1.4" fill="#6f93bb"/><circle cx="11" cy="11" r="1.3" fill="#476a90"/>
+    </pattern>
+    <pattern id="sepHatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="8" height="8" fill="#f2f5fa"/><line x1="0" y1="0" x2="0" y2="8" stroke="#b9c6d8" stroke-width="2"/>
+    </pattern>
+    <linearGradient id="caseGrad" x1="0" x2="1"><stop offset="0" stop-color="#5f6b75"/><stop offset=".4" stop-color="#8e9aa4"/><stop offset="1" stop-color="#58646e"/></linearGradient>
+    <pattern id="pbGrid" width="10" height="10" patternUnits="userSpaceOnUse">
+      <rect width="10" height="10" fill="#8e969d"/><path d="M0 0H10M0 0V10" stroke="#737b82" stroke-width="1.5"/>
+    </pattern>
+    <pattern id="pbo2Grid" width="10" height="10" patternUnits="userSpaceOnUse">
+      <rect width="10" height="10" fill="#5c3423"/><path d="M0 0H10M0 0V10" stroke="#40241a" stroke-width="1.5"/>
+    </pattern>
+    <linearGradient id="pouchGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e6e2f2"/><stop offset="1" stop-color="#bdb6d6"/></linearGradient>
+  </defs>
+
+  <g id="world">
+    <g id="ovGrid"><line x1="500" y1="20" x2="500" y2="580"/><line x1="20" y1="300" x2="980" y2="300"/></g>
+
+    <!-- ① 건전지 -->
+    <g id="b-dry" class="batt" data-b="dry">
+      <text class="ovt" x="40" y="70">건전지</text>
+      <g class="sec">
+        <rect x="400" y="130" width="8" height="390" fill="#2f4453"/>
+        <rect x="592" y="130" width="8" height="390" fill="#2f4453"/>
+        <rect x="400" y="512" width="200" height="8" fill="#2f4453"/>
+        <g class="part" data-part="zn">
+          <rect x="408" y="150" width="14" height="362" fill="url(#zincGrad)"/>
+          <rect x="578" y="150" width="14" height="362" fill="url(#zincGrad)"/>
+          <rect x="408" y="498" width="184" height="14" fill="url(#zincGrad)"/>
+          <rect class="hitbox" x="398" y="150" width="34" height="372"/>
+          <rect class="hitbox" x="568" y="150" width="34" height="372"/>
+          <rect class="hitbox" x="398" y="492" width="204" height="30"/>
+        </g>
+        <rect class="part" data-part="paste" x="422" y="178" width="156" height="320" fill="url(#paste)"/>
+        <rect x="422" y="160" width="156" height="18" fill="#c9a86a"/>
+        <rect x="404" y="138" width="192" height="14" rx="3" fill="#8f99a1"/>
+        <g class="part" data-part="rod">
+          <rect x="486" y="112" width="28" height="372" rx="6" fill="url(#rodGrad)"/>
+          <rect x="478" y="96" width="44" height="22" rx="6" fill="url(#brassGrad)"/>
+        </g>
+      </g>
+      <g class="ext">
+        <rect x="400" y="120" width="200" height="400" rx="14" fill="url(#cylGrad)"/>
+        <rect x="400" y="300" width="200" height="130" fill="url(#bandGrad)" opacity=".92"/>
+        <rect x="400" y="120" width="200" height="18" rx="9" fill="#9aa3aa"/>
+        <rect x="400" y="504" width="200" height="16" rx="8" fill="#9aa3aa"/>
+        <rect x="478" y="96" width="44" height="28" rx="6" fill="url(#zincGrad)"/>
+      </g>
+      <g class="labels"></g>
+    </g>
+
+    <!-- ② 단추·동전 전지 -->
+    <g id="b-coin" class="batt" data-b="coin">
+      <text class="ovt" x="40" y="70">단추·동전 전지</text>
+      <g class="sec">
+        <g class="part" data-part="can">
+          <rect x="270" y="258" width="14" height="152" rx="4" fill="#aab2b9"/>
+          <rect x="716" y="258" width="14" height="152" rx="4" fill="#aab2b9"/>
+          <rect x="270" y="396" width="460" height="14" rx="6" fill="#aab2b9"/>
+          <rect class="hitbox" x="258" y="258" width="30" height="160"/>
+          <rect class="hitbox" x="712" y="258" width="30" height="160"/>
+          <rect class="hitbox" x="258" y="394" width="484" height="26"/>
+        </g>
+        <rect x="284" y="246" width="8" height="80" fill="#3d3f42"/>
+        <rect x="708" y="246" width="8" height="80" fill="#3d3f42"/>
+        <rect class="part" data-part="ag" x="284" y="330" width="432" height="66" fill="url(#agPaste)"/>
+        <rect class="part" data-part="zn" x="304" y="232" width="392" height="88" fill="url(#znPaste)"/>
+        <g class="part" data-part="sep">
+          <rect x="284" y="320" width="432" height="10" fill="url(#sepHatch)"/>
+          <rect class="hitbox" x="284" y="315" width="432" height="20"/>
+        </g>
+        <g class="part" data-part="cap">
+          <rect x="292" y="220" width="416" height="12" rx="4" fill="#dde1e4"/>
+          <rect x="292" y="220" width="12" height="100" rx="3" fill="#dde1e4"/>
+          <rect x="696" y="220" width="12" height="100" rx="3" fill="#dde1e4"/>
+          <rect class="hitbox" x="292" y="210" width="416" height="26"/>
+        </g>
+      </g>
+      <g class="ext">
+        <ellipse cx="500" cy="335" rx="232" ry="58" fill="#8b939a"/>
+        <rect x="268" y="275" width="464" height="60" fill="url(#coinSide)"/>
+        <ellipse cx="500" cy="275" rx="232" ry="58" fill="url(#coinTop)" stroke="#9aa2a9" stroke-width="2"/>
+        <ellipse cx="500" cy="268" rx="178" ry="40" fill="#e6e9ec" stroke="#a9b0b6" stroke-width="2"/>
+      </g>
+      <g class="labels"></g>
+    </g>
+
+    <!-- ③ 납축전지 -->
+    <g id="b-lead" class="batt" data-b="lead">
+      <text class="ovt" x="40" y="70">납축전지</text>
+      <g class="sec">
+        <rect x="300" y="206" width="400" height="300" rx="8" fill="#e9eef1" opacity=".5"/>
+        <rect class="part" data-part="acid" x="312" y="236" width="376" height="257" fill="#bfe0f0"/>
+        <rect x="312" y="236" width="376" height="3" fill="#8fc6e2"/>
+        <g id="pbPlates"></g>
+        <rect x="300" y="206" width="12" height="300" fill="url(#caseGrad)"/>
+        <rect x="688" y="206" width="12" height="300" fill="url(#caseGrad)"/>
+        <rect x="300" y="493" width="400" height="13" fill="url(#caseGrad)"/>
+        <rect x="290" y="170" width="420" height="36" rx="8" fill="#56616b"/>
+        <rect x="365" y="130" width="34" height="46" rx="5" fill="#9aa0a6"/>
+        <rect x="601" y="130" width="34" height="46" rx="5" fill="#9aa0a6"/>
+      </g>
+      <g class="ext">
+        <rect x="300" y="200" width="400" height="306" rx="10" fill="url(#caseGrad)"/>
+        <rect x="290" y="170" width="420" height="40" rx="8" fill="#56616b"/>
+        <circle cx="450" cy="190" r="9" fill="#434c54"/><circle cx="500" cy="190" r="9" fill="#434c54"/><circle cx="550" cy="190" r="9" fill="#434c54"/>
+        <rect x="365" y="130" width="34" height="46" rx="5" fill="#9aa0a6"/>
+        <rect x="601" y="130" width="34" height="46" rx="5" fill="#9aa0a6"/>
+        <rect x="340" y="300" width="320" height="110" rx="10" fill="#6b7780" opacity=".6"/>
+      </g>
+      <g class="labels"></g>
+    </g>
+
+    <!-- ④ 리튬 이온 전지 -->
+    <g id="b-li" class="batt" data-b="li">
+      <text class="ovt" x="40" y="70">리튬 이온 전지</text>
+      <g class="sec">
+        <rect class="part" data-part="elec" x="305" y="195" width="390" height="290" rx="14" fill="#ece4fa"/>
+        <g id="liLayers"></g>
+        <rect x="300" y="190" width="400" height="300" rx="18" fill="none" stroke="#a79fc8" stroke-width="10"/>
+        <text class="caption" x="500" y="530" text-anchor="middle">잘라 낸 모서리의 단면을 확대한 모습</text>
+      </g>
+      <g class="ext">
+        <rect x="410" y="126" width="40" height="56" rx="4" fill="#d5d9dd"/>
+        <rect x="550" y="126" width="40" height="56" rx="4" fill="#c38c5d"/>
+        <rect x="320" y="170" width="360" height="300" rx="16" fill="url(#pouchGrad)"/>
+        <rect x="345" y="195" width="310" height="250" rx="10" fill="#cdc6e2" opacity=".75"/>
+      </g>
+      <g class="labels"></g>
+    </g>
+
+    <!-- 칼 -->
+    <g id="cutLayer">
+      <line id="guide" class="guide"/>
+      <line id="slitS" class="slitShadow"/>
+      <line id="slit" class="slit"/>
+      <g id="knife">
+        <circle class="pulse" cx="-62" cy="0" r="30"/>
+        <rect x="-112" y="-12" width="80" height="24" rx="10" fill="#23907f"/>
+        <rect x="-36" y="-7" width="8" height="14" rx="2" fill="#8a9298"/>
+        <polygon points="0,0 -30,-10 -30,10" fill="#dfe3e6" stroke="#7f878d" stroke-width="2"/>
+        <circle cx="-60" cy="0" r="46" fill="transparent"/>
+      </g>
+    </g>
+  </g>
+</svg>
+        <div class="chips"><span class="chip g1" id="grpChip">일차 전지</span><span class="chip nm" id="nameChip">건전지</span></div>
+        <div class="tr"><button class="sbtn" id="zoomBtn">확대해서 보기</button><button class="sbtn" id="sheetBtn">결과 및 정리</button></div>
+        <button class="sbtn bl" id="resetBtn">처음부터</button>
+        <div class="cnt" id="cnt"></div>
+        <div class="toast" id="toast" role="status"></div>
+        <div class="sheet" id="sheet" aria-hidden="true">
+          <div class="shd"><span class="tag res">결과 및 정리</span><span class="sp"></span><button class="sbtn" id="sheetClose">닫기</button></div>
+          <ol class="q">
+            <li>일차 전지와 이차 전지의 구조적 공통점과 차이점은 무엇인지 써 보자.</li>
+          </ol>
+          <p class="note">답은 교과서에 기록하자.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="prow"><span class="tag" id="tag">과정 1</span><span class="pc" id="pc">1 / 9</span><span class="sp"></span><button class="next" id="next">다음 단계</button></div>
+        <p class="stxt"><span class="sn" id="sn">1</span><span id="stext"></span></p>
+        <p class="hint" id="hint"></p>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="quiz" id="quiz" aria-hidden="true">
+  <div class="qcard" role="dialog" aria-modal="true" aria-labelledby="qtext">
+    <div class="qhead"><span class="tag res">확인 문제</span><span class="qsub" id="qsub"></span></div>
+    <p class="qtext" id="qtext"></p>
+    <div class="ox"><button class="oxb" data-a="O" aria-label="O">O</button><button class="oxb" data-a="X" aria-label="X">X</button></div>
+    <p class="qfb" id="qfb" role="status"></p>
+    <div class="qfoot"><button class="sbtn" id="qBack">본문 다시 읽기</button><span class="sp"></span><button class="next ready" id="qGo" hidden>다음 단계로</button></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+/* ===== 교사용 설정값 ===== */
+const CFG = {
+  cutNeed: 0.95,    // 점선의 이 비율(0~1)까지 칼을 끌면 잘린 것으로 본다
+  cutMaxJump: 0.2,  // 한 번 움직일 때 건너뛸 수 있는 최대 비율(칼이 순간 이동하지 않게)
+  openTime: 900,    // 겉면이 벗겨지고 단면이 나타나는 시간(ms)
+  zoomScale: 1.5,   // [확대해서 보기] 배율
+  toastTime: 2400,  // 토스트 메시지가 떠 있는 시간(ms)
+  quizOn: true,      // [다음 단계]를 누르면 본문 확인 문제(O, X)를 낸다 (false면 끔)
+  showSummary: false // true로 바꾸면 결과 및 정리 단계에서 본문 마지막 문단(구조적 공통점 정리)을 보여 준다
+                     // ※ 이 문단은 결과 및 정리 발문의 답(공통점)을 담고 있다
+};
+
+/* ===== 교과서 본문 (원문 그대로) =====
+   class="mk" data-k="부분 이름" : 단면에서 그 부분을 누르면 본문에 표시된다 */
+const TEXT = {
+  dry: `<p>전지의 활용 범위가 확대되면서 여러 가지 실용 전지들이 개발되었다. 실용 전지는 충전할 수 없는 일차 전지와 충전 후 재사용이 가능한 이차 전지로 구분한다.</p>
+<p><b class="kw">일차 전지 |</b> <b>건전지</b>는 가장 널리 쓰이는 일차 전지이다. 망가니즈 건전지는 <span class="mk" data-k="rod">(+)극인 탄소 막대</span>와 <span class="mk" data-k="zn">(−)극인 아연 통</span>, 전해질로 구성된 소형 전지이다. <span class="qs" data-q="dry1">전해질은 <span class="mk" data-k="paste">이산화 망가니즈(<span class="ch">MnO<sub>2</sub></span>), 염화 암모늄(<span class="ch">NH<sub>4</sub>Cl</span>), 흑연 가루</span>의 반죽 형태로 수분이 거의 없는 형태이기 때문에 휴대하기 쉽다.</span> <span class="qs" data-q="dry2">한편, 최근에 많이 사용하는 건전지는 강염기인 수산화 칼륨(<span class="ch">KOH</span>)을 전해질로 사용한다. 이 경우 <span class="ch">NH<sub>4</sub>Cl</span>과 같은 산성 전해질을 사용하는 망가니즈 건전지에 비해 아연통의 부식이 잘 일어나지 않아 수명이 길고, 전압이 일정하게 유지된다.</span></p>`,
+  coin: `<p><span class="qs" data-q="coin2"><b>단추 전지</b> 또는 <b>동전 전지</b>는 소형 전자 제품에 많이 사용하는 일차 전지이다.</span> <span class="qs" data-q="coin1">개발 당시 산화 수은(<span class="ch">HgO</span>)을 사용하여 수은 전지로 많이 알려졌으나, 환경 오염 문제로 지금은 사용하지 않고 있다.</span> 현재는 <span class="mk" data-k="zn">알칼리 용액을 전해질로</span> 하여 <span class="mk" data-k="cap">(−)극</span>에는 <span class="mk" data-k="zn">아연이나 리튬 등의 금속</span>을 사용하고, <span class="mk" data-k="can">(+)극</span>에는 이산화 망가니즈(<span class="ch">MnO<sub>2</sub></span>), <span class="mk" data-k="ag">산화 은(<span class="ch">Ag<sub>2</sub>O</span>)</span> 등을 사용한 제품을 이용하고 있다.</p>`,
+  lead: `<p><b class="kw v">이차 전지 |</b> <span class="qs" data-q="lead2"><b>납축전지</b>는 대표적인 이차 전지로</span> <span class="mk" data-k="acid">묽은 황산(<span class="ch">H<sub>2</sub>SO<sub>4</sub></span>)</span>에 <span class="mk" data-k="pb">(−)극인 납(<span class="ch">Pb</span>)판</span>과 <span class="mk" data-k="pbo2">(+)극인 이산화 납(<span class="ch">PbO<sub>2</sub></span>)판</span>을 교대로 세워 놓은 구조로, 다른 이차 전지에 비해 용량이 크고 전압도 높다. <span class="qs" data-q="lead1">높은 전압을 필요로 하는 자동차에 주로 사용하며, 산업용 동력 장치와 비상 전원 장치로도 사용한다.</span></p>`,
+  li: `<p><b>리튬 이온 전지</b>는 현재 휴대용 전자 기기에 가장 널리 쓰이는 이차 전지이다. <span class="qs" data-q="li1">리튬 이온(<span class="ch">Li<sup>+</sup></span>) 전지는 방전할 때는 <span class="ch">Li<sup>+</sup></span>이 <span class="mk" data-k="neg">(−)극</span>에서 <span class="mk" data-k="pos">(+)극</span>으로, 충전할 때는 <span class="ch">Li<sup>+</sup></span>이 <span class="mk" data-k="pos">(+)극</span>에서 <span class="mk" data-k="neg">(−)극</span>으로 이동하면서 작동한다.</span> <span class="qs" data-q="li2">리튬(<span class="ch">Li</span>)은 원자량이 가장 작은 가벼운 금속이므로 단위 질량당 에너지 저장 능력이 매우 크다.</span> 따라서 리튬 이온 전지는 소형 전자 기기에 많이 사용하고, 수명이 길어 전기 자동차에도 사용된다.</p>`,
+  summary: `<p>이와 같이 실용 전지에 사용하는 물질들은 다양하지만, 이들 화학 전지는 (+)극, (−)극, 전해질로 구성되어 있다는 구조적 공통점을 가지고 있다. 현재 개발 중인 화학 전지 역시 이와 동일한 구조적 공통점을 가지고 있다.</p>`
+};
+
+/* ===== 전지별 정보 (이름표 문구는 교과서 그림 표기 그대로) =====
+   _숫자 = 아래 첨자, ^+ = 위 첨자 */
+const BATT = {
+  dry: { name:'건전지', group:1, center:[500,310],
+    cut:[500,124,500,540],
+    labels:{
+      rod:  {lines:['(+)극','탄소(C) 막대'], x:650, y:150, a:'start', to:[510,230]},
+      paste:{lines:['이산화 망가니즈(MnO_2)','흑연 가루','염화 암모늄(NH_4Cl)'], x:650, y:300, a:'start', to:[555,330]},
+      zn:   {lines:['(−)극','아연(Zn) 통'], x:650, y:462, a:'start', to:[585,470]}
+    }},
+  coin: { name:'단추·동전 전지', group:1, center:[500,310],
+    cut:[262,275,738,275],
+    labels:{
+      zn:  {lines:['아연(Zn), 수산화 칼륨(KOH)','(또는 수산화 나트륨(NaOH)) 전해질'], x:500, y:122, a:'middle', to:[450,276]},
+      cap: {lines:['(−)극'], x:790, y:212, a:'start', to:[702,226]},
+      sep: {lines:['분리막'], x:790, y:332, a:'start', to:[650,325]},
+      can: {lines:['(+)극'], x:230, y:396, a:'end', to:[277,370]},
+      ag:  {lines:['산화 은(Ag_2O)'], x:500, y:470, a:'middle', to:[500,366]}
+    }},
+  lead: { name:'납축전지', group:2, center:[500,320],
+    cut:[292,232,708,232],
+    labels:{
+      pbo2:{lines:['(+)극','이산화 납(PbO_2)판'], x:270, y:462, a:'end', to:[393,440]},
+      pb:  {lines:['(−)극','납(Pb)판'], x:730, y:462, a:'start', to:[660,440]},
+      acid:{lines:['묽은 황산'], x:730, y:300, a:'start', to:[633,322]}
+    }},
+  li: { name:'리튬 이온 전지', group:2, center:[500,330],
+    cut:[520,480,690,310],
+    labels:{
+      pos: {lines:['(+)극'], x:740, y:228, a:'start', to:[640,225]},
+      neg: {lines:['(−)극'], x:740, y:300, a:'start', to:[640,269]},
+      sep: {lines:['분리막'], x:262, y:256, a:'end', to:[338,247]},
+      elec:{lines:['전해질'], x:262, y:406, a:'end', to:[322,400]}
+    }}
+};
+
+/* ===== 본문 확인 문제 (전지마다 하나를 골라 낸다, 자유롭게 고치거나 추가) =====
+   q: 문제, a: 'O' 또는 'X', ex: 정답 뒤에 보여 줄 설명, id: 틀렸을 때 본문에 표시할 문장(TEXT의 data-q) */
+const QUIZ = {
+  dry: [
+    { id:'dry1', a:'O', q:'망가니즈 건전지의 전해질은 수분이 거의 없는 반죽 형태이기 때문에 휴대하기 쉽다.', ex:'전해질이 반죽 형태로 수분이 거의 없어 휴대하기 쉽다.' },
+    { id:'dry2', a:'X', q:'최근에 많이 사용하는 건전지는 산성 전해질인 염화 암모늄(<span class="ch">NH<sub>4</sub>Cl</span>)을 사용하여 아연통의 부식이 잘 일어나지 않는다.', ex:'최근의 건전지는 강염기인 수산화 칼륨(<span class="ch">KOH</span>)을 전해질로 사용하여 아연통의 부식이 잘 일어나지 않는다.' }
+  ],
+  coin: [
+    { id:'coin1', a:'X', q:'단추 전지에는 지금도 산화 수은(<span class="ch">HgO</span>)을 사용한 수은 전지가 주로 쓰인다.', ex:'수은 전지는 환경 오염 문제로 지금은 사용하지 않는다.' },
+    { id:'coin2', a:'O', q:'단추 전지는 소형 전자 제품에 많이 사용하는 일차 전지이다.', ex:'단추 전지는 소형 전자 제품에 많이 사용하는 일차 전지이다.' }
+  ],
+  lead: [
+    { id:'lead1', a:'O', q:'납축전지는 높은 전압을 필요로 하는 자동차에 주로 사용한다.', ex:'납축전지는 자동차와 산업용 동력 장치, 비상 전원 장치에 사용한다.' },
+    { id:'lead2', a:'X', q:'납축전지는 충전할 수 없는 일차 전지이다.', ex:'납축전지는 대표적인 이차 전지이다.' }
+  ],
+  li: [
+    { id:'li1', a:'X', q:'리튬 이온 전지가 방전할 때 <span class="ch">Li<sup>+</sup></span>은 (+)극에서 (−)극으로 이동한다.', ex:'방전할 때 <span class="ch">Li<sup>+</sup></span>은 (−)극에서 (+)극으로 이동한다.' },
+    { id:'li2', a:'O', q:'리튬은 원자량이 가장 작은 가벼운 금속이므로 단위 질량당 에너지 저장 능력이 매우 크다.', ex:'그래서 리튬 이온 전지는 소형 전자 기기와 전기 자동차에 사용된다.' }
+  ]
+};
+
+/* ===== 단계 ===== */
+const STEPS = [
+  { tag:'과정 1', cls:'', b:'dry', act:'both', text:'건전지의 겉면을 잘라 단면을 열고, 각 부분을 눌러 이름을 확인한다.', hint:'칼을 점선을 따라 끝까지 끌어 보자.', hint2:'색이 다른 부분을 하나씩 눌러 보자. 누른 부분은 왼쪽 본문에도 표시된다.', open:'건전지의 단면이 드러났다.', ok:'건전지의 구성 요소를 모두 확인했다.' },
+  { tag:'과정 2', cls:'', b:'coin', act:'both', text:'단추·동전 전지의 겉면을 잘라 단면을 열고, 각 부분을 눌러 이름을 확인한다.', hint:'칼을 점선을 따라 끝까지 끌어 보자.', hint2:'색이 다른 부분을 하나씩 눌러 보자. 얇은 층은 [확대해서 보기]로 보면 누르기 쉽다.', open:'단추·동전 전지의 단면이 드러났다.', ok:'단추·동전 전지의 구성 요소를 모두 확인했다.' },
+  { tag:'과정 3', cls:'', b:'lead', act:'both', text:'납축전지의 겉면을 잘라 단면을 열고, 각 부분을 눌러 이름을 확인한다.', hint:'칼을 점선을 따라 끝까지 끌어 보자.', hint2:'색이 다른 부분을 하나씩 눌러 보자.', open:'납축전지의 단면이 드러났다.', ok:'납축전지의 구성 요소를 모두 확인했다.' },
+  { tag:'과정 4', cls:'', b:'li', act:'both', text:'리튬 이온 전지의 모서리를 잘라 단면을 열고, 각 부분을 눌러 이름을 확인한다.', hint:'칼을 점선을 따라 끝까지 끌어 보자.', hint2:'색이 다른 층과 그 사이를 하나씩 눌러 보자. 잘라 낸 부분은 확대해서 보여 준다.', open:'리튬 이온 전지의 층 구조가 드러났다.', ok:'리튬 이온 전지의 구성 요소를 모두 확인했다.' },
+  { tag:'결과 및 정리', cls:'res', b:null, act:'sheet', text:'네 가지 전지의 구조를 비교하여 정리한다.', hint:'시트를 닫으면 네 전지의 단면을 다시 볼 수 있다. 답은 교과서에 기록하자.', ok:'결과 및 정리를 확인했다.' }
+];
+
+/* ===== 도우미 ===== */
+const $ = s => document.querySelector(s);
+const NS = 'http://www.w3.org/2000/svg';
+const mk = (tag, attrs={}) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
+const svg = $('#svg');
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+document.documentElement.style.setProperty('--open', CFG.openTime + 'ms');
+
+function rich(el, s){
+  const re = /_(\d+)|\^([+−-])/g; let last = 0, m, shift = 0;
+  const add = (txt, kind) => {
+    const t = mk('tspan'); t.textContent = txt; let dy;
+    if (kind === 'sub'){ dy = 5 - shift; shift = 5; t.setAttribute('font-size','0.72em'); }
+    else if (kind === 'sup'){ dy = -7 - shift; shift = -7; t.setAttribute('font-size','0.72em'); }
+    else { dy = -shift; shift = 0; }
+    if (dy) t.setAttribute('dy', dy);
+    el.appendChild(t);
+  };
+  while ((m = re.exec(s))){ if (m.index > last) add(s.slice(last, m.index)); add(m[1] || m[2], m[1] ? 'sub' : 'sup'); last = re.lastIndex; }
+  if (last < s.length) add(s.slice(last));
+}
+
+/* 납축전지 극판: 납(Pb)판과 이산화 납(PbO2)판을 교대로 */
+(function buildPlates(){
+  const g = $('#pbPlates');
+  g.appendChild(mk('rect',{x:330,y:224,width:340,height:9,fill:'#8e969d'}));      // (−)극판 연결
+  g.appendChild(mk('rect',{x:610,y:176,width:16,height:52,fill:'#8e969d'}));
+  for (let i = 0; i < 7; i++){
+    const x = 330 + i * 53.33;
+    const pos = i % 2 === 1;
+    g.appendChild(mk('rect',{class:'part', 'data-part': pos ? 'pbo2':'pb', x:x, y: pos ? 212 : 226, width:20, height: pos ? 263 : 249, fill: pos ? 'url(#pbo2Grid)' : 'url(#pbGrid)'}));
+  }
+  g.appendChild(mk('rect',{x:383,y:210,width:233,height:9,fill:'#6d4a39'}));      // (+)극판 연결
+  g.appendChild(mk('rect',{x:374,y:176,width:16,height:40,fill:'#6d4a39'}));
+})();
+
+/* 리튬 이온 전지 층: (+)극 / 분리막 / (−)극 / 분리막 반복 */
+(function buildLayers(){
+  const g = $('#liLayers'); let y = 212;
+  for (let i = 0; i < 3; i++){
+    const p = mk('g',{class:'part','data-part':'pos'});
+    p.appendChild(mk('rect',{x:336,y:y,width:328,height:26,rx:3,fill:'#4fb2c6'}));
+    p.appendChild(mk('rect',{x:336,y:y+12,width:328,height:2,fill:'#e3e8ec'}));
+    g.appendChild(p); y += 29;
+    const s1 = mk('g',{class:'part','data-part':'sep'});
+    s1.appendChild(mk('rect',{x:326,y:y,width:348,height:12,fill:'#faf8ff',stroke:'#c9bfe6','stroke-width':1}));
+    s1.appendChild(mk('rect',{class:'hitbox',x:326,y:y-4,width:348,height:20}));
+    g.appendChild(s1); y += 15;
+    const n = mk('g',{class:'part','data-part':'neg'});
+    n.appendChild(mk('rect',{x:336,y:y,width:328,height:26,rx:3,fill:'#e8a066'}));
+    n.appendChild(mk('rect',{x:336,y:y+12,width:328,height:2,fill:'#b8683a'}));
+    g.appendChild(n); y += 29;
+    const s2 = mk('g',{class:'part','data-part':'sep'});
+    s2.appendChild(mk('rect',{x:326,y:y,width:348,height:12,fill:'#faf8ff',stroke:'#c9bfe6','stroke-width':1}));
+    s2.appendChild(mk('rect',{class:'hitbox',x:326,y:y-4,width:348,height:20}));
+    g.appendChild(s2); y += 15;
+  }
+})();
+
+/* ===== 상태 ===== */
+const S = {};
+function freshState(){ for (const k in BATT) S[k] = { opened:false, found:new Set(), cut:0 }; }
+freshState();
+let step = 0, stepDone = false, curB = null, zoomed = false, vb = [0,0,1000,600];
+const gB = b => $('#b-' + b);
+
+/* ===== 토스트 ===== */
+let toastT;
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), CFG.toastTime);
+}
+
+/* ===== 화면 전환 ===== */
+function showBattery(b){
+  curB = b;
+  document.querySelectorAll('.batt').forEach(g => g.classList.toggle('on', g.dataset.b === b));
+  svg.classList.toggle('ov', b === null);
+  document.querySelectorAll('.blist li').forEach(li => li.classList.toggle('cur', li.dataset.b === b));
+  const chips = $('.chips');
+  if (b){
+    chips.style.display = '';
+    const info = BATT[b];
+    $('#grpChip').textContent = info.group === 1 ? '일차 전지' : '이차 전지';
+    $('#grpChip').className = 'chip ' + (info.group === 1 ? 'g1' : 'g2');
+    $('#nameChip').textContent = info.name;
+  } else chips.style.display = 'none';
+  // 네 전지를 함께 보는 결과 및 정리 단계에서는 확대를 풀고 확대 버튼을 숨긴다
+  if (b === null){ if (zoomed) setZoom(false); }
+  else if (zoomed) animVB(zoomBox());
+  $('#zoomBtn').style.display = b === null ? 'none' : '';
+}
+
+/* ===== 확대 ===== */
+function setVB(a){ vb = a; svg.setAttribute('viewBox', a.map(v => v.toFixed(2)).join(' ')); }
+function animVB(to){
+  if (reduceMotion){ setVB(to); return; }
+  const from = vb.slice(), t0 = performance.now(), d = 450;
+  (function f(now){
+    let k = Math.min(1, (now - t0) / d); k = 1 - Math.pow(1 - k, 3);
+    setVB(from.map((v, i) => v + (to[i] - v) * k));
+    if (k < 1) requestAnimationFrame(f);
+  })(t0);
+}
+function zoomBox(){
+  const c = curB ? BATT[curB].center : [500,300];
+  const w = 1000 / CFG.zoomScale, h = 600 / CFG.zoomScale;
+  const x = Math.max(0, Math.min(1000 - w, c[0] - w/2)), y = Math.max(0, Math.min(600 - h, c[1] - h/2));
+  return [x, y, w, h];
+}
+function setZoom(on){
+  zoomed = on;
+  $('#zoomBtn').textContent = on ? '원래대로 보기' : '확대해서 보기';
+  $('#zoomBtn').classList.toggle('on', on);
+  animVB(on ? zoomBox() : [0,0,1000,600]);
+}
+$('#zoomBtn').addEventListener('click', () => setZoom(!zoomed));
+
+/* ===== 결과 및 정리 시트 ===== */
+function setSheet(open){
+  $('#sheet').classList.toggle('open', open);
+  $('#sheet').setAttribute('aria-hidden', !open);
+  $('#sheetBtn').classList.toggle('on', open);
+}
+$('#sheetBtn').addEventListener('click', () => setSheet(!$('#sheet').classList.contains('open')));
+$('#sheetClose').addEventListener('click', () => setSheet(false));
+
+/* ===== 칼로 자르기 ===== */
+const knife = $('#knife');
+function cutLine(){ return BATT[curB].cut; }
+function drawCut(){
+  const [x1,y1,x2,y2] = cutLine(), t = S[curB].cut;
+  const px = x1 + (x2 - x1) * t, py = y1 + (y2 - y1) * t;
+  const set = (el, a) => { for (const k in a) el.setAttribute(k, a[k]); };
+  set($('#guide'), {x1,y1,x2,y2});
+  set($('#slit'), {x1,y1,x2:px,y2:py}); set($('#slitS'), {x1,y1,x2:px,y2:py});
+  $('#slit').style.display = $('#slitS').style.display = t > 0.01 ? '' : 'none';
+  const ang = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+  knife.setAttribute('transform', `translate(${px} ${py}) rotate(${ang})`);
+}
+function showCutLayer(on){
+  $('#cutLayer').style.display = on ? '' : 'none';
+  if (on){ knife.setAttribute('data-drag',''); drawCut(); } else knife.removeAttribute('data-drag');
+}
+function toSvg(e){
+  const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY;
+  return p.matrixTransform(svg.getScreenCTM().inverse());
+}
+let drag = null;
+knife.addEventListener('pointerdown', e => {
+  if (!knife.hasAttribute('data-drag')) return;
+  e.preventDefault(); drag = e.pointerId; knife.setPointerCapture(e.pointerId);
+});
+knife.addEventListener('pointermove', e => {
+  if (drag !== e.pointerId) return;
+  const p = toSvg(e), [x1,y1,x2,y2] = cutLine();
+  const dx = x2 - x1, dy = y2 - y1;
+  let t = ((p.x - x1) * dx + (p.y - y1) * dy) / (dx*dx + dy*dy);
+  t = Math.max(0, Math.min(1, t));
+  const st = S[curB];
+  if (t > st.cut){ st.cut = Math.min(t, st.cut + CFG.cutMaxJump); drawCut(); }
+  if (st.cut >= CFG.cutNeed) finishCut();
+});
+const endDrag = e => { if (drag === e.pointerId) drag = null; };
+knife.addEventListener('pointerup', endDrag);
+knife.addEventListener('pointercancel', endDrag);
+
+function finishCut(){
+  const st = S[curB]; if (st.opened) return;
+  st.opened = true; st.cut = 1; drag = null;
+  gB(curB).classList.add('open');
+  showCutLayer(false);
+  const st0 = STEPS[step];
+  if (st0.b === curB){ toast(st0.open); $('#hint').textContent = st0.hint2; $('#cnt').style.display = 'block'; updateFound(curB); }
+  checkStep();
+}
+
+/* ===== 구성 요소 누르기 ===== */
+svg.addEventListener('click', e => {
+  const p = e.target.closest('[data-part]'); if (!p) return;
+  const g = p.closest('.batt'); const b = g.dataset.b;
+  if (!S[b].opened) return;
+  const pid = p.dataset.part;
+  g.querySelectorAll(`.part[data-part="${pid}"]`).forEach(el => {
+    el.classList.remove('flash'); void el.getBBox(); el.classList.add('flash');
+  });
+  if (S[b].found.has(pid)) return;
+  S[b].found.add(pid);
+  buildLabel(b, pid);
+  markRead(b, pid);
+  updateFound(b);
+  checkStep();
+});
+
+function buildLabel(b, pid){
+  const spec = BATT[b].labels[pid], layer = gB(b).querySelector('.labels');
+  const g = mk('g',{class:'lbl'}), tg = mk('g');
+  g.appendChild(tg); layer.appendChild(g);
+  spec.lines.forEach((ln, i) => {
+    const t = mk('text',{x:spec.x, y:spec.y + i*26, 'text-anchor': spec.a});
+    rich(t, ln); tg.appendChild(t);
+  });
+  const bb = tg.getBBox();
+  const r = {x:bb.x - 10, y:bb.y - 6, w:bb.width + 20, h:bb.height + 12};
+  g.insertBefore(mk('rect',{class:'lblbox', x:r.x, y:r.y, width:r.w, height:r.h, rx:9}), tg);
+  let ex, ey;
+  if (spec.a === 'start'){ ex = r.x; ey = r.y + r.h/2; }
+  else if (spec.a === 'end'){ ex = r.x + r.w; ey = r.y + r.h/2; }
+  else { ex = r.x + r.w/2; ey = spec.to[1] < r.y ? r.y : r.y + r.h; }
+  g.insertBefore(mk('line',{class:'leader', x1:ex, y1:ey, x2:spec.to[0], y2:spec.to[1]}), g.firstChild);
+  g.appendChild(mk('circle',{class:'dot', cx:spec.to[0], cy:spec.to[1], r:5}));
+}
+
+function updateFound(b){
+  const total = Object.keys(BATT[b].labels).length, n = S[b].found.size;
+  if (curB === b && STEPS[step].act === 'both') $('#cnt').innerHTML = `확인한 구성 요소 <b>${n} / ${total}</b>`;
+  if (n === total) document.querySelector(`.blist li[data-b="${b}"]`).classList.add('done');
+}
+
+/* ===== 본문 ===== */
+let readK = null;
+const reached = b => STEPS.findIndex(s => s.b === b) <= step;
+function renderRead(k){
+  readK = k;
+  const rb = $('#rbody');
+  if (k === 'summary'){
+    $('#rh').innerHTML = '본문';
+    rb.innerHTML = CFG.showSummary ? TEXT.summary : '<p class="empty">목록에서 전지를 눌러 본문을 다시 읽어 보자.</p>';
+  } else {
+    $('#rh').innerHTML = `본문<small>${BATT[k].name}</small>`;
+    rb.innerHTML = TEXT[k];
+    S[k].found.forEach(pid => rb.querySelectorAll(`.mk[data-k="${pid}"]`).forEach(m => m.classList.add('hit')));
+  }
+  $('#read').scrollTop = 0;
+  document.querySelectorAll('.blist li').forEach(li => {
+    li.classList.toggle('view', li.dataset.b === k && k !== curB);
+    li.classList.toggle('reach', reached(li.dataset.b));
+  });
+}
+function markRead(b, pid){
+  if (readK !== b) renderRead(b);
+  const ms = $('#rbody').querySelectorAll(`.mk[data-k="${pid}"]`);
+  ms.forEach(m => { m.classList.add('hit'); m.classList.remove('pop'); void m.offsetWidth; m.classList.add('pop'); });
+  if (ms[0]) ms[0].scrollIntoView({block:'nearest', behavior: reduceMotion ? 'auto' : 'smooth'});
+}
+document.querySelectorAll('.blist li').forEach(li => {
+  const go = () => {
+    if (!reached(li.dataset.b)){ toast('아직 살펴보지 않은 전지이다.'); return; }
+    renderRead(li.dataset.b);
+  };
+  li.addEventListener('click', go);
+  li.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); go(); } });
+});
+
+/* ===== 단계 진행 ===== */
+function stepCondition(){
+  const st = STEPS[step];
+  if (st.act === 'both') return S[st.b].opened && S[st.b].found.size === Object.keys(BATT[st.b].labels).length;
+  return true;
+}
+function checkStep(){ if (!stepDone && stepCondition()) completeStep(); }
+function completeStep(){
+  stepDone = true;
+  toast(STEPS[step].ok);
+  const nx = $('#next');
+  if (step === STEPS.length - 1) nx.textContent = '처음부터 다시';
+  nx.classList.add('ready');
+  nx.classList.remove('blink'); void nx.offsetWidth; nx.classList.add('blink');
+  updateProgress();
+}
+function updateProgress(){
+  const p = (step + (stepDone ? 1 : 0)) / STEPS.length * 100;
+  $('#pfill').style.width = p + '%'; $('#pknob').style.left = p + '%';
+}
+function enterStep(i){
+  step = i; stepDone = false;
+  const st = STEPS[i];
+  const nx = $('#next'); nx.classList.remove('ready','blink'); nx.textContent = '다음 단계';
+  const tag = $('#tag'); tag.textContent = st.tag; tag.className = 'tag' + (st.cls ? ' ' + st.cls : '');
+  $('#pc').textContent = `${i + 1} / ${STEPS.length}`;
+  $('#sn').textContent = i + 1; $('#stext').innerHTML = st.text; $('#hint').textContent = st.hint;
+  if (st.b !== curB || i === 0) showBattery(st.b);
+  const opened = st.act === 'both' && S[st.b].opened;
+  showCutLayer(st.act === 'both' && !opened);
+  if (opened) $('#hint').textContent = st.hint2;
+  $('#cnt').style.display = opened ? 'block' : 'none';
+  if (opened) updateFound(st.b);
+  if (st.act === 'sheet'){ setSheet(true); }
+  renderRead(st.b || 'summary');
+  updateProgress();
+  setTimeout(checkStep, st.act === 'sheet' ? 500 : 0);
+}
+$('#next').addEventListener('click', () => {
+  if (!stepDone){ toast('이 단계를 먼저 마치자.'); return; }
+  const b = STEPS[step].b;
+  if (step === STEPS.length - 1) resetAll();
+  else if (CFG.quizOn && b && QUIZ[b] && !quizPassed[b]) openQuiz(b);
+  else enterStep(step + 1);
+});
+
+/* ===== 본문 확인 문제 ===== */
+let quizPick = {}, quizPassed = {}, quizB = null;
+function openQuiz(b){
+  quizB = b;
+  if (!quizPick[b]) quizPick[b] = QUIZ[b][Math.floor(Math.random() * QUIZ[b].length)];
+  $('#qsub').textContent = BATT[b].name;
+  $('#qtext').innerHTML = quizPick[b].q;
+  document.querySelectorAll('.oxb').forEach(x => { x.disabled = false; x.classList.remove('right','wrong'); });
+  $('#qfb').textContent = ''; $('#qfb').className = 'qfb';
+  $('#qGo').hidden = true; $('#qBack').hidden = false;
+  $('#quiz').classList.add('open'); $('#quiz').setAttribute('aria-hidden','false');
+  setTimeout(() => document.querySelector('.oxb').focus(), 50);
+}
+function closeQuiz(){ $('#quiz').classList.remove('open'); $('#quiz').setAttribute('aria-hidden','true'); }
+document.querySelectorAll('.oxb').forEach(btn => btn.addEventListener('click', () => {
+  const q = quizPick[quizB], fb = $('#qfb');
+  if (btn.dataset.a === q.a){
+    quizPassed[quizB] = true;
+    btn.classList.add('right');
+    document.querySelectorAll('.oxb').forEach(x => { x.disabled = true; x.classList.remove('wrong'); });
+    fb.className = 'qfb ok'; fb.innerHTML = '정답이다. ' + q.ex;
+    document.querySelectorAll('.qs.show').forEach(x => x.classList.remove('show'));
+    $('#qBack').hidden = true; $('#qGo').hidden = false; $('#qGo').focus();
+  } else {
+    btn.classList.remove('wrong'); void btn.offsetWidth; btn.classList.add('wrong');
+    fb.className = 'qfb no'; fb.textContent = '다시 생각해 보자. 관련 문장을 본문에 표시했다.';
+    if (readK !== quizB) renderRead(quizB);
+    const sen = document.querySelector(`.qs[data-q="${q.id}"]`);
+    if (sen){ sen.classList.add('show'); sen.scrollIntoView({block:'nearest', behavior: reduceMotion ? 'auto' : 'smooth'}); }
+  }
+}));
+$('#qBack').addEventListener('click', closeQuiz);
+$('#qGo').addEventListener('click', () => { closeQuiz(); enterStep(step + 1); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('#quiz').classList.contains('open') && !$('#qBack').hidden) closeQuiz(); });
+
+function resetAll(){
+  freshState();
+  quizPick = {}; quizPassed = {}; closeQuiz();
+  document.querySelectorAll('.batt').forEach(g => { g.classList.remove('open'); g.querySelector('.labels').innerHTML = ''; });
+  document.querySelectorAll('.blist li').forEach(li => li.classList.remove('done'));
+  setSheet(false);
+  if (zoomed){ zoomed = false; $('#zoomBtn').textContent = '확대해서 보기'; $('#zoomBtn').classList.remove('on'); }
+  setVB([0,0,1000,600]);
+  curB = undefined;
+  enterStep(0);
+}
+$('#resetBtn').addEventListener('click', resetAll);
+
+enterStep(0);
+</script>
+</body>
+</html>
